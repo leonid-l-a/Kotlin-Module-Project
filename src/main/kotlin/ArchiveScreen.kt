@@ -11,55 +11,49 @@ class ArchiveScreen : BaseScreen() {
                 "выход"
             )
             val actionMap = mapOf(
-                "1" to { choseArchive() },
-                "2" to { createArchive() }
+                "1" to { choseItem("архив") { choseArchive() } },
+                "2" to { createItem("архив") { createArchive() } }
             )
             menuManager.runMenu(menuItems, actionMap)
         }
     }
 
     private fun choseArchive() {
-        if (archives.isEmpty()) {
-            println("Архивы отсутствуют.")
-            return
-        }
-
-        printList(archives) { archive -> archive.title }
-
         val chosenName = getUserInput("Выберите архив, вписав его имя")
-
         val selectedArchive = archives.find { it.title == chosenName }
         if (selectedArchive != null) {
-            if (selectedArchive.content.isEmpty()) {
-                println("Архив '${selectedArchive.title}' пуст. Выберите, что вы хотите с ним сделать:")
-                NoteScreen(selectedArchive).run()
-            } else {
-                println("Содержимое архива '${selectedArchive.title}':")
-                printList(selectedArchive.content) { note -> "${note.title}: ${note.content}" }
-                NoteScreen(selectedArchive).run()
-            }
+            NoteScreen(selectedArchive).run()
         } else {
-            val createNew = confirmAction("Такого архива не существует. Вы хотите создать новый архив с именем '$chosenName'? (да/нет)")
-            if (createNew) {
-                createArchive(chosenName)
-            } else {
-                println("Операция отменена.")
-            }
+            createItem("архив", chosenName) { createArchive(chosenName) }
         }
     }
 
     private fun createArchive(title: String = "") {
-        val newArchiveTitle = title.ifBlank {
-            getUserInput("Введите название для нового архива")
-        }
-
+        val newArchiveTitle = title.ifBlank { getUserInput("Введите название для нового архива") }
         if (newArchiveTitle.isBlank()) {
             println("Название архива не может быть пустым. Пожалуйста, попробуйте снова.")
             return
         }
-
         val newArchive = Archive(newArchiveTitle)
         archives.add(newArchive)
         println("Архив '$newArchiveTitle' успешно создан.")
+    }
+
+    private fun choseItem(itemType: String, action: () -> Unit) {
+        if (archives.isEmpty()) {
+            println("Архивы отсутствуют.")
+            return
+        }
+        printList(archives) { archive -> archive.title }
+        action()
+    }
+
+    private fun createItem(itemType: String, title: String = "", action: (String) -> Unit) {
+        val createNew = confirmAction("Такой $itemType не существует. Вы хотите создать новый $itemType с именем '$title'? (да/нет)")
+        if (createNew) {
+            action(title)
+        } else {
+            println("Операция отменена.")
+        }
     }
 }
