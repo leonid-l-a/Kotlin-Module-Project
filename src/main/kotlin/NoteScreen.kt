@@ -48,7 +48,12 @@ class NoteScreen(private val archive: Archive) : BaseScreen() {
             return
         }
 
-        val newNoteContent = getUserInput("Введите содержимое для новой заметки")
+        var newNoteContent = getUserInput("Введите содержимое для новой заметки")
+
+        while (newNoteContent.isBlank()) {
+            println("Содержимое заметки не может быть пустым. Пожалуйста, попробуйте снова.")
+            newNoteContent = getUserInput("Введите содержимое для новой заметки")
+        }
 
         val newNote = Note(newNoteTitle, newNoteContent)
         archive.content.add(newNote)
