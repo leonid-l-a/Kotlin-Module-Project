@@ -1,12 +1,17 @@
 import java.util.Scanner
+import kotlin.system.exitProcess
 
 class MenuManager(private val scanner: Scanner) {
-    fun runMenu(menuItems: List<String>, actionMap: Map<String, () -> Unit>) {
+    fun runMenu(menuItems: List<String>, actionMap: Map<String, () -> Unit>, isInArchiveMenu: Boolean) {
         while (true) {
             printMenu(menuItems)
             val command = scanner.nextLine()
             if (command == (menuItems.size).toString()) {
-                break
+                if (isInArchiveMenu) {
+                    exitProcess(0)
+                } else {
+                    break
+                }
             }
             actionMap[command]?.invoke() ?: println("Пожалуйста, введите корректную команду")
         }
